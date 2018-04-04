@@ -1,0 +1,89 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset=utf-8 />
+  <title>watercolor-hillshade-trails-elevation</title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+   <!-- leaflet -->
+   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.2.0/dist/leaflet.css"
+   integrity="sha512-M2wvCLH6DSRazYeZRIm1JnYyh22purTM+FDB5CsyxtQJYeKq83arPe5wgbNmcFXGqiSH2XR8dT/fJISVA1r/zQ=="
+   crossorigin=""/>
+
+   <script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"
+   integrity="sha512-lInM/apFSqyy1o6s89K4iQUKg6ppXEgsVxT35HbzUupEVRh2Eu9Wdl4tHj7dZO0s1uvplcYGmt3498TtHq+log=="
+   crossorigin=""></script>
+
+   <!-- esri -->
+   <script src="https://unpkg.com/esri-leaflet@2.1.1/dist/esri-leaflet.js"
+   integrity="sha512-ECQqaYZke9cSdqlFG08zSkudgrdF6I1d8ViSa7I3VIszJyVqw4ng1G8sehEXlumdMnFYfzY0tMgdQa4WCs9IUw=="
+   crossorigin=""></script>
+
+
+  <style>
+    body { margin:0; padding:0; }
+    #map { position: absolute; top:0; bottom:0; right:0; left:0; }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script>
+
+var map = L.map('map').setView([44.11,-72.99], 13);
+
+L.tileLayer('http://b.tile.stamen.com/watercolor/{z}/{x}/{y}.png').addTo(map);
+
+var hillurl = "https://maps.vcgi.vermont.gov/arcgis/rest/services/EGC_services/IMG_VCGI_LIDARHILLSHD_SP_CACHE_v1/ImageServer";
+
+var hill = L.esri.imageMapLayer({
+  url: hillurl,
+  opacity: 0.40
+}).addTo(map);
+
+var demurl = "https://maps.vcgi.vermont.gov/arcgis/rest/services/EGC_services/IMG_VCGI_LIDARDEM_SP_NOCACHE_v1/ImageServer";
+
+var dem = L.esri.imageMapLayer({
+  url: demurl,
+  opacity: 0
+}).addTo(map);
+
+var vhdlinesurl = "https://maps.vcgi.vermont.gov/arcgis/rest/services/EGC_services/OPENDATA_VCGI_WATER_SP_NOCACHE_v1/MapServer/10/";
+
+	var vhdlines = L.esri.featureLayer({
+        url: vhdlinesurl,
+        style: function (feature) {
+      				if(feature.properties.STREAM_ORDER <='3'){
+      					return { color: 'darkblue', weight: 1, opacity: 0.2 };
+      				} else if (feature.properties.STREAM_ORDER <='5'){
+        				return { color: 'midnightblue', weight: 1.5, opacity: 0.4 };
+      				} else {
+       					return { color: 'midnightblue', weight: 2, opacity: 0.6 };
+      				}
+    }}).addTo(map);
+
+var traillinesurl = "https://maps.vcgi.vermont.gov/arcgis/rest/services/EGC_services/OPENDATA_VCGI_EMERGENCY_SP_NOCACHE_v1/MapServer/21/";
+
+	var traillines = L.esri.featureLayer({
+		url: traillinesurl,
+		style: function (feature) {
+			return {color: '#4d0000',
+			weight: 4,
+			opacity: 0.6,
+			dashArray: '5, 10'};
+			}
+	}).addTo(map);
+
+dem.bindPopup(
+  function (error, identifyResults) {
+    if(error || !identifyResults.pixel) {
+      return false;
+    } else {
+      return 'Elevation (m): ' + identifyResults.pixel.properties.value;
+    }});
+
+</script>
+
+</body>
+</html>
