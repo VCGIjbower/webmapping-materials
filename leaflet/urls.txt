@@ -1,2 +1,0 @@
-Quick start tutorial: http://leafletjs.com/examples/quick-start/
-Cool basemaps: http://leaflet-extras.github.io/leaflet-providers/preview/
